@@ -1,10 +1,17 @@
-import { Post as PostData, User } from "@prisma/client"
+import { Post as PostData } from "@prisma/client"
 import Link from "next/link";
 import UserAvatar from "../UserAvatar";
 import { formatRelativeDate } from "@/lib/utils";
 
+type UserForPost = {
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+};
+
 interface PostProps {
-    post: PostData & { user: User };
+    post: PostData & { user: UserForPost };
 }
 
 export default function Post({ post }: PostProps) {
@@ -18,7 +25,7 @@ export default function Post({ post }: PostProps) {
                     <Link href={`/user/${post.user.username}`}
                         className="block font-medium hover:underline"
                     >
-                        <span>{post.user.displayName}</span>
+                        <span>{post.id}</span>
                     </Link>
                     <Link
                         href={`/post/${post.id}`}

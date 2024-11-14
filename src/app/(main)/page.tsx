@@ -1,16 +1,10 @@
 // import Image from "next/image";
 
 import PostEditor from "@/components/posts/editor/PostEditor";
-import Post from "@/components/posts/Post";
 import TrendsSidebar from "@/components/TrendsSidebar";
-import prisma from "@/lib/prisma";
-import { postDataInclude } from "@/lib/types";
+import ForYouFeed from "./ForYouFeed";
 
-export default async function Home() {
-  const posts = await prisma.post.findMany({
-    include: postDataInclude,
-    orderBy: { createdAt: 'desc' },
-  })
+export default function Home() {
 
   return (
     <main className="w-full min-w-0 flex gap-5">
@@ -18,12 +12,10 @@ export default async function Home() {
         {/* Post editor */}
         <PostEditor />
 
-        {/* Posts */}
-        {posts.map((post) => (
-          // eslint-disable-next-line
-          <Post key={post.id} post={post} />  
-        ))}
+        {/* For you feed */}
+        <ForYouFeed />
       </div>
+
 
       {/* Trends sidebar */}
       <TrendsSidebar />

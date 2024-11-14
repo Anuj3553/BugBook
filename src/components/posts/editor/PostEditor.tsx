@@ -21,7 +21,8 @@ export default function PostEditor() {
             Placeholder.configure({
                 placeholder: "What's crack-a-lackin'?",
             }),
-        ]
+        ],
+        immediatelyRender: false
     })
 
     const input = editor?.getText({
