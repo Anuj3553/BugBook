@@ -2,6 +2,7 @@
 
 import PostEditor from "@/components/posts/editor/PostEditor";
 import Post from "@/components/posts/Post";
+import TrendsSidebar from "@/components/TrendsSidebar";
 import prisma from "@/lib/prisma";
 import { postDataInclude } from "@/lib/types";
 
@@ -12,14 +13,20 @@ export default async function Home() {
   })
 
   return (
-    <main className="w-full min-w-0">
+    <main className="w-full min-w-0 flex gap-5">
       <div className="w-full min-w-0 space-y-5">
         {/* Post editor */}
         <PostEditor />
+
+        {/* Posts */}
         {posts.map((post) => (
+          // eslint-disable-next-line
           <Post key={post.id} post={post} />  
         ))}
       </div>
+
+      {/* Trends sidebar */}
+      <TrendsSidebar />
     </main>
   );
 }
