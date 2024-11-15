@@ -7,6 +7,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import kyInstance from "@/lib/ky";
 import PostsLoadingSkelton from "@/components/posts/PostsLoadingSkelton";
+import DeletePostDialog from "@/components/posts/DeletePostDialog";
 
 export default function ForYouFeed() {
 
