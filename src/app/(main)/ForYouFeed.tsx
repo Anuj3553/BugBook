@@ -6,7 +6,6 @@ import { PostsPage } from "@/lib/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import kyInstance from "@/lib/ky";
-import { Button } from "@/components/ui/button";
 
 export default function ForYouFeed() {
 

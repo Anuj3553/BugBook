@@ -29,7 +29,8 @@ export async function GET(req: NextRequest) {
 
         const data: PostsPage = {
             posts: posts.slice(0, pageSize),
-            nextCursor
+            nextCursor,
+            data: null,
         };
 
         return Response.json({ data });
