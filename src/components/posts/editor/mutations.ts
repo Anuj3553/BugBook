@@ -38,8 +38,12 @@ export function useSubmitPostMutation() {
                 },
             );
 
-            // Option 2: Invalidate the query to refetch the data but Slower than Option 1
-            // queryClient.invalidateQueries(queryFilter);
+            queryClient.invalidateQueries({
+                queryKey: queryFilter.queryKey,
+                predicate(query) {
+                    return !query.state.data
+                }
+            })
 
             toast({
                 description: "Post created successfully.",
