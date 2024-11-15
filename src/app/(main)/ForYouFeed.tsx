@@ -28,13 +28,13 @@ export default function ForYouFeed() {
         getNextPageParam: (lastPage) => lastPage?.data?.nextCursor
     });
 
-    const posts = data?.pages?.flatMap((page) => page.data.posts) || [];
+    const posts = data?.pages?.flatMap((page) => page?.data.posts ?? []) || [];
 
     if (status === "pending") {
         return <PostsLoadingSkelton />;
     }
 
-    if(status === "success" && !posts.length && !hasNextPage) {
+    if (status === "success" && !posts.length && !hasNextPage) {
         return <p className="text-center text-muted-foreground">
             No one has posted anything yet.
         </p>;
