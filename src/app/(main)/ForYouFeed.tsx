@@ -25,18 +25,10 @@ export default function ForYouFeed() {
                 pageParam ? { searchParams: { cursor: pageParam } } : {}
             ).json<PostsPage>(),
         initialPageParam: null as string | null,
-        getNextPageParam: (lastPage) => lastPage.nextCursor
+        getNextPageParam: (lastPage) => lastPage?.data?.nextCursor
     });
 
-    // const posts = data?.pages?.flatMap((page) => page.posts) || [];
-
-    // Collect all posts from each page
-    const posts = data?.pages?.reduce((acc, page) => {
-        if (page.data?.posts && Array.isArray(page.data.posts)) {
-            acc.push(...page.data.posts);
-        }
-        return acc;
-    }, [] as typeof data.pages[0]["data"]["posts"]) || [];
+    const posts = data?.pages?.flatMap((page) => page.data.posts) || [];
 
     if (status === "pending") {
         return <Loader2 className="mx-auto animate-spin" />;
@@ -56,10 +48,6 @@ export default function ForYouFeed() {
             {posts.map((post) => (
                 <Post key={post.id} post={post} />
             ))}
-
-            <Button onClick={() => fetchNextPage()}>
-                Load More
-            </Button>
             {isFetchingNextPage && <Loader2 className="mx-auto my-3 animate-spin" />}
         </InfiniteScrollContainer>
     );

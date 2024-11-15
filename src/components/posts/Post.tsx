@@ -3,15 +3,8 @@ import Link from "next/link";
 import UserAvatar from "../UserAvatar";
 import { formatRelativeDate } from "@/lib/utils";
 
-type UserForPost = {
-    id: string;
-    username: string;
-    displayName: string;
-    avatarUrl: string | null;
-};
-
 interface PostProps {
-    post: PostData & { user: UserForPost };
+    post: PostData;
 }
 
 export default function Post({ post }: PostProps) {

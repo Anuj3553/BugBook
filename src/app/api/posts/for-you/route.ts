@@ -6,7 +6,6 @@ import { NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
     try {
         const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
-        console.log("cursor", cursor);
 
         const pageSize = 10;
 
