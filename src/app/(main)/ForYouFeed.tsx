@@ -6,6 +6,7 @@ import { PostsPage } from "@/lib/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import kyInstance from "@/lib/ky";
+import PostsLoadingSkelton from "@/components/posts/PostsLoadingSkelton";
 
 export default function ForYouFeed() {
 
@@ -30,7 +31,13 @@ export default function ForYouFeed() {
     const posts = data?.pages?.flatMap((page) => page.data.posts) || [];
 
     if (status === "pending") {
-        return <Loader2 className="mx-auto animate-spin" />;
+        return <PostsLoadingSkelton />;
+    }
+
+    if(status === "success" && !posts.length && !hasNextPage) {
+        return <p className="text-center text-muted-foreground">
+            No one has posted anything yet.
+        </p>;
     }
 
     if (status === "error") {
