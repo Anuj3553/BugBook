@@ -22,11 +22,11 @@ export default function Post({ post }: PostProps) {
         <article className="group/post space-y-3 rounded-2xl bg-card p-5 shadow-sm">
             <div className="flex justify-between gap-3">
                 <div className="flex flex-wrap gap-3">
-                    <Link href={`/user/${post.user.username}`}>
+                    <Link href={`/users/${post.user.username}`}>
                         <UserAvatar avatarUrl={post.user.avatarUrl} className="cursor-pointer" />
                     </Link>
                     <div>
-                        <Link href={`/user/${post.user.displayName}`}
+                        <Link href={`/users/${post.user.displayName}`}
                             className="block font-medium hover:underline"
                         >
                             <span>{post.user.username}</span>
