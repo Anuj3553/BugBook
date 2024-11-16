@@ -2,10 +2,13 @@ import { validateRequest } from "@/auth"
 import prisma from "@/lib/prisma"
 import { FollowerInfo } from "@/lib/types"
 
-export async function GET(
-    req: Request,
-    { params: { userId } }: { params: { userId: string } }
-) {
+export async function GET(req: Request, props: { params: Promise<{ userId: string }> }) {
+    const params = await props.params;
+
+    const {
+        userId
+    } = params;
+
     try {
         // Validate the request to ensure the user is logged in
         const { user: loggedinUser } = await validateRequest()
@@ -54,10 +57,13 @@ export async function GET(
     }
 }
 
-export async function POST(
-    req: Request,
-    { params: { userId } }: { params: { userId: string } }
-) {
+export async function POST(req: Request, props: { params: Promise<{ userId: string }> }) {
+    const params = await props.params;
+
+    const {
+        userId
+    } = params;
+
     try {
         // Validate the request to ensure the user is logged in
         const { user: loggedinUser } = await validateRequest()
@@ -88,10 +94,13 @@ export async function POST(
     }
 }
 
-export async function DELETE(
-    req: Request,
-    { params: { userId } }: { params: { userId: string } }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ userId: string }> }) {
+    const params = await props.params;
+
+    const {
+        userId
+    } = params;
+
     try {
         // Validate the request to ensure the user is logged in
         const { user: loggedinUser } = await validateRequest()
