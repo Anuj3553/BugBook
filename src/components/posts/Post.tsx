@@ -10,6 +10,10 @@ type UserForPost = {
     username: string;
     displayName: string;
     avatarUrl: string | null;
+    createdAt: Date;
+    bio: string | null;
+    followers: { followerId: string }[];
+    _count: { posts: number; followers: number };
 };
 
 interface PostProps {
