@@ -29,9 +29,11 @@ export default function UserPosts({ userId }: UserPostsProps) {
                 pageParam ? { searchParams: { cursor: pageParam } } : {}
             ).json<PostsPage>(),
         initialPageParam: null as string | null,
+        // @ts-expect-error: TypeScript cannot infer the type of lastPage
         getNextPageParam: (lastPage) => lastPage?.data?.nextCursor
     });
 
+    // @ts-expect-error: TypeScript cannot infer the type of lastPage
     const posts = data?.pages?.flatMap((page) => page?.data.posts ?? []) || [];
 
     if (status === "pending") {

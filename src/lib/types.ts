@@ -38,7 +38,6 @@ export function getPostDataInclude(loggedinUserId: string) {
     } satisfies Prisma.PostInclude;
 }
 
-
 // Create the PostData type using Prisma's PostGetPayload to infer types from the Prisma schema
 export type PostData = Prisma.PostGetPayload<{
     include: ReturnType<typeof getPostDataInclude>;

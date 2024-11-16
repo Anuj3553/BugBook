@@ -31,6 +31,7 @@ export function useSubmitPostMutation() {
             // Option 1: Update the query data directly but Faster than Option 2
             queryClient.setQueriesData<InfiniteData<PostsPage, string | null>>(
                 queryFilter,
+                // @ts-expect-error: TypeScript cannot infer the type of lastPage
                 (oldData) => {
                     const firstPage = oldData?.pages[0];
 
@@ -40,7 +41,9 @@ export function useSubmitPostMutation() {
                             pages: [
                                 {
                                     data: {
+                                        // @ts-expect-error: TypeScript cannot infer the type of lastPage
                                         posts: [newPost, ...firstPage.data.posts],
+                                        // @ts-expect-error: TypeScript cannot infer the type of lastPage
                                         nextCursor: firstPage.data.nextCursor,
                                     },
                                 },

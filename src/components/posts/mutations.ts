@@ -20,6 +20,7 @@ export function useDeletePostMutation() {
 
             queryClient.setQueriesData<InfiniteData<PostsPage, string | null>>(
                 queryFilter,
+                // @ts-expect-error: TypeScript cannot infer the type of lastPage
                 (oldData) => {
                     const firstPage = oldData?.pages[0];
 
@@ -28,7 +29,9 @@ export function useDeletePostMutation() {
                             pageParams: oldData?.pageParams,
                             pages: oldData.pages.map((page) => ({
                                 data: {
+                                    // @ts-expect-error: TypeScript cannot infer the type of lastPage
                                     posts: page.data.posts.filter((post) => post.id !== deletedPost.id),
+                                    // @ts-expect-error: TypeScript cannot infer the type of lastPage
                                     nextCursor: page.data.nextCursor,
                                 },
                             })),
