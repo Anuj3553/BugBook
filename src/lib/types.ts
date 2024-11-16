@@ -39,8 +39,6 @@ export type PostData = Prisma.PostGetPayload<{
 
 // Correct the PostsPage type to directly include posts and nextCursor
 export interface PostsPage {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: any; // Data from the API response
     posts: PostData[]; // Array of post data
     nextCursor: string | null; // Pagination cursor for the next page
 }
