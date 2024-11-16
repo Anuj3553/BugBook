@@ -1,67 +1,60 @@
-import { useToast } from "@/hooks/use-toast";
-import { InfiniteData, QueryFilters, useMutation, useQueryClient } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
-import { deletePost } from "./actions";
 import { PostsPage } from "@/lib/types";
+import {
+  InfiniteData,
+  QueryFilters,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { deletePost } from "./actions";
 
 export function useDeletePostMutation() {
-    const { toast } = useToast();
-    const queryClient = useQueryClient();
-    const router = useRouter();
-    const pathname = usePathname();
+  const { toast } = useToast();
 
-    const mutation = useMutation({
-        mutationFn: deletePost,
-        onSuccess: async (deletedPost) => {
-            const queryFilter: QueryFilters = { queryKey: ["post-feed"] };
+  const queryClient = useQueryClient();
 
-            // Cancel ongoing queries related to the "post-feed"
-            await queryClient.cancelQueries(queryFilter);
+  const router = useRouter();
+  const pathname = usePathname();
 
-            queryClient.setQueriesData<InfiniteData<PostsPage, string | null>>(
-                queryFilter,
-                // @ts-expect-error: TypeScript cannot infer the type of lastPage
-                (oldData) => {
-                    const firstPage = oldData?.pages[0];
+  const mutation = useMutation({
+    mutationFn: deletePost,
+    onSuccess: async (deletedPost) => {
+      const queryFilter: QueryFilters = { queryKey: ["post-feed"] };
 
-                    if (firstPage) {
-                        return {
-                            pageParams: oldData?.pageParams,
-                            pages: oldData.pages.map((page) => ({
-                                data: {
-                                    // @ts-expect-error: TypeScript cannot infer the type of lastPage
-                                    posts: page.data.posts.filter((post) => post.id !== deletedPost.id),
-                                    // @ts-expect-error: TypeScript cannot infer the type of lastPage
-                                    nextCursor: page.data.nextCursor,
-                                },
-                            })),
-                        };
-                    }
+      await queryClient.cancelQueries(queryFilter);
 
-                    return oldData; // Preserve old data if no pages are found
-                }
-            );
+      queryClient.setQueriesData<InfiniteData<PostsPage, string | null>>(
+        queryFilter,
+        (oldData) => {
+          if (!oldData) return;
 
-            // Show success toast
-            toast({
-                description: "Post deleted successfully.",
-            });
-
-            // Redirect if the current page is the deleted post's page
-            if (pathname === `/posts/${deletedPost.id}`) {
-                router.push(`/users/${deletedPost.user.username}`);
-            }
+          return {
+            pageParams: oldData.pageParams,
+            pages: oldData.pages.map((page) => ({
+              nextCursor: page.nextCursor,
+              posts: page.posts.filter((p) => p.id !== deletedPost.id),
+            })),
+          };
         },
-        onError: (error) => {
-            console.error(error);
+      );
 
-            // Show error toast
-            toast({
-                variant: "destructive",
-                description: "Failed to delete post. Please try again.",
-            });
-        },
-    });
+      toast({
+        description: "Post deleted",
+      });
 
-    return mutation;
+      if (pathname === `/posts/${deletedPost.id}`) {
+        router.push(`/users/${deletedPost.user.username}`);
+      }
+    },
+    onError(error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        description: "Failed to delete post. Please try again.",
+      });
+    },
+  });
+
+  return mutation;
 }
