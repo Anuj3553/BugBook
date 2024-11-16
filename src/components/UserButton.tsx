@@ -39,7 +39,7 @@ export default function UserButton({ className }: UserButtonProps) {
                 <DropdownMenuLabel>Logged in as @{user.username}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <Link href={`/users/${user.username}`}>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
                         <UserIcon className="mr-2 size-4" />
                         Profile
                     </DropdownMenuItem>
@@ -47,7 +47,7 @@ export default function UserButton({ className }: UserButtonProps) {
 
                 <DropdownMenuSub>
                     {/* Sub-trigger for the sub-menu */}
-                    <DropdownMenuSubTrigger>
+                    <DropdownMenuSubTrigger className="cursor-pointer">
                         <Monitor className="mr-2 size-4" />
                         Theme
                     </DropdownMenuSubTrigger>
@@ -55,17 +55,17 @@ export default function UserButton({ className }: UserButtonProps) {
                     {/* Content of the sub-menu */}
                     <DropdownMenuPortal>
                         <DropdownMenuSubContent>
-                            <DropdownMenuItem onClick={() => setTheme("system")}>
+                            <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer">
                                 <Monitor className="mr-2 size-4" />
                                 System default
                                 {theme === "system" && <Check className="ms-2 size-4" />}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setTheme("light")}>
+                            <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
                                 <Sun className="mr-2 size-4" />
                                 Light
                                 {theme === "light" && <Check className="ms-2 size-4" />}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setTheme("dark")}>
+                            <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
                                 <Moon className="mr-2 size-4" />
                                 Dark
                                 {theme === "dark" && <Check className="ms-2 size-4" />}
@@ -80,6 +80,7 @@ export default function UserButton({ className }: UserButtonProps) {
                         queryClient.clear();
                         logout();
                     }}
+                    className="cursor-pointer"
                 >
                     <LogOutIcon className="mr-2 size-4" />
                     Logout
