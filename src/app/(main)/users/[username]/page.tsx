@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
 
 interface PageProps {
-    params: { username: string; }
+    params: Promise<{ username: string; }>
 }
 
 //  This function fetches the user data from the database
@@ -34,9 +34,13 @@ const getUser = cache(async (username: string, loggedInUserId: string) => {
     return user;
 });
 
-export async function generateMetadata({
-    params: { username },
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+    const params = await props.params;
+
+    const {
+        username
+    } = params;
+
     const { user: loggedInUser } = await validateRequest();
 
     if (!loggedInUser) return {};
@@ -48,7 +52,13 @@ export async function generateMetadata({
     };
 }
 
-export default async function Page({ params: { username } }: PageProps) {
+export default async function Page(props: PageProps) {
+    const params = await props.params;
+
+    const {
+        username
+    } = params;
+
     // Validate the request    
     const { user: loggedInUser } = await validateRequest();
 
