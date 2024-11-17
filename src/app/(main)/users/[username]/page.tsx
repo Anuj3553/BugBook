@@ -12,6 +12,7 @@ import { cache } from "react";
 import UserPosts from "./UserPosts";
 import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
+import Linkify from "@/components/ui/Linkify";
 
 interface PageProps {
     params: Promise<{ username: string; }>
@@ -135,9 +136,11 @@ async function UserProfile({ user, loggedinUserId }: UserProfileProps) {
             {user.bio &&
                 <>
                     <hr />
-                    <div className="whitespace-pre-line overflow-hidden break-words">
-                        {user.bio}
-                    </div>
+                    <Linkify>
+                        <div className="whitespace-pre-line overflow-hidden break-words">
+                            {user.bio}
+                        </div>
+                    </Linkify>
                 </>
             }
         </div>

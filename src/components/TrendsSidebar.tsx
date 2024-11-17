@@ -8,6 +8,7 @@ import UserAvatar from "./UserAvatar";
 import { unstable_cache } from "next/cache";
 import { formatNumber } from "@/lib/utils";
 import FollowButton from "./ui/FollowButton";
+import UserTooltip from "./UserTooltip";
 
 export default function TrendsSidebar() {
     return (
@@ -45,22 +46,27 @@ async function WhoToFollow() {
             <div className="text-xl font-bold">Who to follow</div>
             {usersToFollow.map((user) => (
                 <div key={user.id} className="flex items-center justify-between gap-3">
-                    <Link
-                        href={`/user/${user.username}`}
-                        className="flex items-center gap-3"
-                    >
-                        <UserAvatar avatarUrl={user.avatarUrl} className="flex-none" />
-                        <div>
-                            <p className="line-clamp-1 break-all font-semibold hover:underline">
-                                {user.displayName}
-                            </p>
-                            <p className="line-clamp-1 break-all">
-                                @{user.username}
-                            </p>
-                        </div>
-                    </Link>
+                    <UserTooltip user={user}>
+                        <Link
+                            href={`/user/${user.username}`}
+                            className="flex items-center gap-3"
+                        >
+                            <UserAvatar avatarUrl={user.avatarUrl} className="flex-none" />
+                            <div>
+                                <p className="line-clamp-1 break-all font-semibold hover:underline">
+                                    {user.displayName}
+                                </p>
+                                <p className="line-clamp-1 break-all">
+                                    @{user.username}
+                                </p>
+                            </div>
+                        </Link>
+                    </UserTooltip>
+
                     <FollowButton
+                        // The FollowButton component expects a userId prop
                         userId={user.id}
+                        // The FollowButton component expects an object with the following shape:
                         initialState={{
                             followers: user._count.followers,
                             isFollowedByUser: user.followers.some(
@@ -76,6 +82,7 @@ async function WhoToFollow() {
 
 const getTrendingTopics = unstable_cache(
     async () => {
+        // Get the top 5 most used hashtags
         const result = await prisma.$queryRaw<{ hashtag: string; count: bigint }[]>`
             SELECT LOWER(unnest(regexp_matches(content, '#\[[:alnum:]_]+', 'g'))) AS hashtag, COUNT(*) as count
             FROM posts
@@ -84,14 +91,15 @@ const getTrendingTopics = unstable_cache(
             LIMIT 5 
         `;
 
+        // The result is an array of objects with the following shape:
         return result.map(row => ({
             hashtag: row.hashtag,
             count: Number(row.count)
         }))
     },
-    ["trending_topics"],
+    ["trending_topics"], // cache key
     {
-        revalidate: 3 * 60 * 60,
+        revalidate: 1 * 60, // 1 minute
     },
 )
 
