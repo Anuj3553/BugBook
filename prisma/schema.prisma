@@ -6,7 +6,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch"] // previewFeatures enables the full-text search feature and full-text search is used to search for text within the database
 }
 
 datasource db {
@@ -15,7 +15,7 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
+  id           String    @id @default(cuid()) // @id marks a field as the primary key
   username     String    @unique
   displayName  String
   email        String?   @unique
@@ -23,14 +23,14 @@ model User {
   googleId     String?   @unique
   avatarUrl    String?
   bio          String?
-  sessions     Session[]
-  posts        Post[]
-  following    Follow[] @relation("Following")
-  followers    Follow[] @relation("Followers")
+  sessions     Session[] // @relation links the User to the Session model
+  posts        Post[] // @relation links the User to the Post model
+  following    Follow[]  @relation("Following") // @relation links the User to the Follow model
+  followers    Follow[]  @relation("Followers") // @relation links the User to the Follow model
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) // @default sets a default value for a field
 
-  @@map("users")
+  @@map("users") // @@map allows you to set the name of the table in the database
 }
 
 model Session {
@@ -38,27 +38,47 @@ model Session {
   userId    String
   createdAt DateTime @default(now())
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade) // @relation links the Session to the User model and define relation because of fields, references and onDelete
 
-  @@map("sessions")
+  @@map("sessions") // @@map allows you to set the name of the table in the database
 }
 
 model Follow {
   followerId  String
-  follower    User   @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  follower    User   @relation("Following", fields: [followerId], references: [id], onDelete: Cascade) // @relation links the Follow to the User model
   followingId String
-  following   User   @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  following   User   @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade) // @relation links the Follow to the User model
 
-  @@unique([followerId, followingId])
-  @@map("follows")
+  @@unique([followerId, followingId]) // @@unique creates a unique constraint on the fields
+  @@map("follows") // @@map allows you to set the name of the table in the database
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  content   String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String  @id @default(cuid())
+  content     String
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade) // @relation links the Post to the User model
+  attachments Media[] // @relation links the Post to the Media model
+
   createdAt DateTime @default(now())
 
-  @@map("posts")
+  @@map("posts") // @@map allows you to set the name of the table in the database
+}
+
+model Media {
+  id     String    @id @default(cuid())
+  postId String? // ? means that the field is optional
+  post   Post?     @relation(fields: [postId], references: [id], onDelete: SetNull)
+  type   MediaType // MediaType is an enum
+  url    String
+
+  createdAt DateTime @default(now())
+
+  @@map("post_media") // @@map allows you to set the name of the table in the database
+}
+
+// enum is used to define a type with a fixed set of values.
+enum MediaType {
+  IMAGE
+  VIDEO
 }

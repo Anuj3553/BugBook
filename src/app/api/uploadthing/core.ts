@@ -14,9 +14,7 @@ export const fileRouter = {
         .middleware(async () => {
             const { user } = await validateRequest();
 
-            if (!user) {
-                throw new UploadThingError("Unauthorized");
-            }
+            if (!user) throw new UploadThingError("Unauthorized");
 
             return { user };
         })
@@ -49,6 +47,34 @@ export const fileRouter = {
 
             return { avatarUrl: newAvatarUrl };
         }),
+
+    attachment: f({
+        image: { maxFileSize: "4MB", maxFileCount: 5 },
+        video: { maxFileSize: "64MB", maxFileCount: 5 },
+    })
+        .middleware(async () => {
+            const { user } = await validateRequest();
+
+            if (!user) throw new UploadThingError("Unauthorized");
+
+            return {};
+        })
+        .onUploadComplete(async ({ file }) => {
+            // save the media to the database
+            const media = await prisma.media.create({
+                data: {
+                    url: file.url.replace( // replace the file url with the app url
+                        "/f/", // /f/ is the file url prefix
+                        `/a/${process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID}/`, // /a/ is the app url prefix
+                    ),
+                    type: file.type.startsWith("image") ? "IMAGE" : "VIDEO",
+                },
+
+
+            });
+
+            return { mediaId: media.id };
+        })
 } satisfies FileRouter;
 
 export type AppFileRouter = typeof fileRouter;

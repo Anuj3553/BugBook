@@ -6,16 +6,26 @@ import StarterKit from "@tiptap/starter-kit"
 import Placeholder from "@tiptap/extension-placeholder"
 import UserAvatar from "@/components/UserAvatar"
 import LoadingButton from "@/components/LoadingButton"
-import './styles.css'
 import { useSubmitPostMutation } from "./mutations"
+import './styles.css'
+import useMediaUpload, { Attachment } from "./useMediaUpload"
+import { useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { ImageIcon, Loader2, X } from "lucide-react"
+import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 export default function PostEditor() {
     const { user } = useSession()
 
+    // Use the submit post mutation
     const mutation = useSubmitPostMutation()
 
+    const { startUpload, attachments, isUploading, uploadProgress, removeAttachment, reset: resetMediaUploads } = useMediaUpload()
+
+    // Initialize the editor
     const editor = useEditor({
-        extensions: [
+        extensions: [ // Add the StarterKit and Placeholder extensions
             StarterKit.configure({
                 bold: false,
                 italic: false,
@@ -24,19 +34,27 @@ export default function PostEditor() {
                 placeholder: "What's crack-a-lackin'?",
             }),
         ],
-        immediatelyRender: false
+        immediatelyRender: false // Do not render the editor immediately
     })
 
+    // Get the editor content
     const input = editor?.getText({
         blockSeparator: "\n",
     }) || "";
 
+    // Submit the post
     function onSubmit() {
-        mutation.mutate(input, {
-            onSuccess: () => {
-                editor?.commands.clearContent();
+        mutation.mutate({
+            content: input, // Get the editor content
+            mediaIds: attachments.map((a) => a.mediaId).filter(Boolean) as string[] // Filter out any undefined media IDs
+        },
+            {
+                onSuccess: () => {
+                    editor?.commands.clearContent();
+                    resetMediaUploads();
+                },
             }
-        })
+        );
     }
 
     return (
@@ -48,11 +66,25 @@ export default function PostEditor() {
                     className="w-full max-h-[20rem] overflow-y-auto bg-background rounded-2xl px-5 py-3"
                 />
             </div>
-            <div className="flex justify-end">
+            {/*  Check if there are any attachments */}
+            {!!attachments.length && (
+                <AttachmentPreviews
+                    attachments={attachments}
+                    removeAttachment={removeAttachment}
+                />
+            )}
+            <div className="flex justify-end gap-3 items-center">
+                {isUploading && (
+                    <>
+                        <span className="text-sm">{uploadProgress ?? 0}%</span>
+                        <Loader2 className="size-5 animate-spin text-primary" />
+                    </>
+                )}
+                <AddAttachmentsButton onFilesSelected={startUpload} disabled={isUploading || attachments.length >= 5} />
                 <LoadingButton
                     onClick={onSubmit}
                     loading={mutation.isPending}
-                    disabled={!input.trim()}
+                    disabled={!input.trim() || isUploading}
                     className="min-w-20"
                 >
                     Post
@@ -60,4 +92,97 @@ export default function PostEditor() {
             </div>
         </div>
     );
+}
+
+interface AddAtachmentButtonProps {
+    onFilesSelected: (files: File[]) => void // onFilesSelected is a function that accepts an array of files
+    disabled: boolean // disabled is a boolean that determines if the button is disabled
+}
+
+function AddAttachmentsButton({
+    onFilesSelected,
+    disabled,
+}: AddAtachmentButtonProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    return (
+        <>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="text-primary hover:text-primary"
+                disabled={disabled}
+                onClick={() => fileInputRef.current?.click()}
+            >
+                <ImageIcon size={20} />
+            </Button>
+            <input
+                type="file"
+                accept="image/*, video/*"
+                multiple
+                ref={fileInputRef}
+                className="hidden sr-only"
+                onChange={(e) => {
+                    // Get the files from the input
+                    const files = Array.from(e.target.files || [])
+                    if (files.length) {
+                        onFilesSelected(files)
+                        e.target.value = "" // Clear the input value
+                    }
+                }}
+            />
+        </>
+    )
+}
+
+interface AttachmentPreviewsProps {
+    attachments: Attachment[];
+    removeAttachment: (fileName: string) => void;
+}
+
+function AttachmentPreviews({
+    attachments,
+    removeAttachment
+}: AttachmentPreviewsProps) {
+    return (
+        <div className={cn("flex flex-col gap-3", attachments.length > 1 && "sm:grid  sm:grid-cols-2")}>
+            {attachments.map((attachment) => (
+                <AttachmentPreview
+                    key={attachment.file.name}
+                    attachment={attachment}
+                    onRemoveClick={() => removeAttachment(attachment.file.name)}
+                />
+            ))}
+        </div>
+    )
+}
+
+interface AttachmentPreviewProps {
+    attachment: Attachment;
+    onRemoveClick: () => void;
+}
+
+function AttachmentPreview({
+    attachment: { file, isUploading },
+    onRemoveClick
+}: AttachmentPreviewProps) {
+    const src = URL.createObjectURL(file) // Create a URL for the file
+
+    return (
+        <div className={cn("relative mx-auto size-fit", isUploading && "opacity-50")}>
+            {file.type.startsWith("image") ? (
+                <Image src={src} alt="Attachment preview" width={500} height={500} className="size-fit max-h-[30rem] rounded-2xl" />
+            ) : (
+                <video controls className="size-fit max-h-[30rem] rounded-2xl" >
+                    <source src={src} type={file.type} />
+                </video>
+            )}
+
+            {!isUploading && (
+                <button onClick={onRemoveClick} className="absolute right-3 rounded-full bg-foreground p-1.5 text-background transition-colors hover:bg-foreground/60" >
+                    <X size={20} />
+                </button>
+            )}
+        </div>
+    )
 }
