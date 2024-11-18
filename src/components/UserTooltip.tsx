@@ -9,6 +9,7 @@ import UserAvatar from "./UserAvatar";
 import FollowButton from "./ui/FollowButton";
 import Linkify from "./ui/Linkify";
 import FollowerCount from "./FollowerCount";
+import EditProfileButton from "@/app/(main)/users/[username]/EditProfileButton";
 
 interface UserTooltipProps extends PropsWithChildren {
     user: UserData;
@@ -32,9 +33,11 @@ export default function UserTooltip({ children, user }: UserTooltipProps) {
                     <div className="flex max-80 flex-col gap-3 break-words px-1 py-2.5 md:min-w-52">
                         <div className="flex items-center justify-between gap-2">
                             <Link href={`/users/${user.username}`}>
-                                <UserAvatar size={70} avatarUrl={user.avatarUrl} />
+                                <UserAvatar size={1000} avatarUrl={user.avatarUrl} />
                             </Link>
-                            {loggedInUser.id !== user.id && (
+                            {loggedInUser.id === user.id ? (
+                                <EditProfileButton user={user} />
+                            ) : (
                                 <FollowButton userId={user.id} initialState={followerState} />
                             )}
                         </div>

@@ -10,9 +10,9 @@ import { formatDate } from "date-fns";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import UserPosts from "./UserPosts";
-import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
 import Linkify from "@/components/ui/Linkify";
+import EditProfileButton from "./EditProfileButton";
 
 interface PageProps {
     params: Promise<{ username: string; }>
@@ -107,7 +107,7 @@ async function UserProfile({ user, loggedinUserId }: UserProfileProps) {
         <div className="h-fit w-full space-y-5 rounded-2xl bg-card p-5 shadow-sm">
             <UserAvatar
                 avatarUrl={user.avatarUrl}
-                size={250}
+                size={1000}
                 className="mx-auto size-full max-h-60 max-w-60 rounded-full"
             />
             <div className="flex flex-wrap gap-3 sm:flex-nowrap">
@@ -128,7 +128,7 @@ async function UserProfile({ user, loggedinUserId }: UserProfileProps) {
                     </div>
                 </div>
                 {user.id === loggedinUserId ? (
-                    <Button className="btn-secondary">Edit Profile</Button>
+                    <EditProfileButton user={user} />
                 ) : (
                     <FollowButton userId={user.id} initialState={followerInfo} />
                 )}
