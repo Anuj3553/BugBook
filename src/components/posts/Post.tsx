@@ -1,3 +1,5 @@
+"use client"
+
 import { Media, Post as PostData } from "@prisma/client"
 import Link from "next/link";
 import UserAvatar from "../UserAvatar";
@@ -45,6 +47,7 @@ export default function Post({ post }: PostProps) {
                         <Link
                             href={`/posts/${post.id}`}
                             className="block text-sm text-muted-foreground hover:underline"
+                            suppressHydrationWarning // Suppress hydration warning for SSR mismatch
                         >
                             {formatRelativeDate(post.createdAt)}
                         </Link>

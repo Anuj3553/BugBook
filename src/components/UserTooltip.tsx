@@ -9,7 +9,6 @@ import UserAvatar from "./UserAvatar";
 import FollowButton from "./ui/FollowButton";
 import Linkify from "./ui/Linkify";
 import FollowerCount from "./FollowerCount";
-import EditProfileButton from "@/app/(main)/users/[username]/EditProfileButton";
 
 interface UserTooltipProps extends PropsWithChildren {
     user: UserData;
@@ -35,9 +34,7 @@ export default function UserTooltip({ children, user }: UserTooltipProps) {
                             <Link href={`/users/${user.username}`}>
                                 <UserAvatar size={1000} avatarUrl={user.avatarUrl} />
                             </Link>
-                            {loggedInUser.id === user.id ? (
-                                <EditProfileButton user={user} />
-                            ) : (
+                            {loggedInUser.id !== user.id && (
                                 <FollowButton userId={user.id} initialState={followerState} />
                             )}
                         </div>
