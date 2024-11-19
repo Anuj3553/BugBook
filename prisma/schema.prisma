@@ -27,6 +27,7 @@ model User {
   posts        Post[] // @relation links the User to the Post model
   following    Follow[]  @relation("Following") // @relation links the User to the Follow model
   followers    Follow[]  @relation("Followers") // @relation links the User to the Follow model
+  likes        Like[]
 
   createdAt DateTime @default(now()) // @default sets a default value for a field
 
@@ -59,6 +60,7 @@ model Post {
   userId      String
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade) // @relation links the Post to the User model
   attachments Media[] // @relation links the Post to the Media model
+  likes       Like[]
 
   createdAt DateTime @default(now())
 
@@ -81,4 +83,14 @@ model Media {
 enum MediaType {
   IMAGE
   VIDEO
+}
+
+model Like {
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) // @relation links the Like to the User model
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade) // @relation links the Like to the Post model
+
+  @@unique([userId, postId]) // @@unique creates a unique constraint on the fields
+  @@map("likes") // @@map allows you to set the name of the table in the database
 }
