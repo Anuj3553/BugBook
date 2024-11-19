@@ -23,7 +23,7 @@ type UserForPost = {
 };
 
 interface PostProps {
-    post: PostData & { user: UserForPost } & { attachments: Media[] };
+    post: PostData & { user: UserForPost } & { attachments: Media[] } & { _count: { likes: number } } & { likes: { userId: string }[] };
 }
 
 export default function Post({ post }: PostProps) {

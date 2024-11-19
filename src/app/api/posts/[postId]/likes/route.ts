@@ -3,10 +3,13 @@ import prisma from "@/lib/prisma";
 import { LikeInfo } from "@/lib/types";
 import { NextRequest } from "next/server";
 
-export async function GET(
-    req: NextRequest,
-    { params: { postId } }: { params: { postId: string } },
-) {
+export async function GET(req: NextRequest, props: { params: Promise<{ postId: string }> }) {
+    const params = await props.params;
+
+    const {
+        postId
+    } = params;
+
     try {
         const { user: loggedInUser } = await validateRequest();
 
@@ -53,10 +56,13 @@ export async function GET(
     }
 }
 
-export async function POST(
-    req: NextRequest,
-    { params: { postId } }: { params: { postId: string } },
-) {
+export async function POST(req: NextRequest, props: { params: Promise<{ postId: string }> }) {
+    const params = await props.params;
+
+    const {
+        postId
+    } = params;
+
     try {
         const { user: loggedInUser } = await validateRequest();
 
@@ -86,10 +92,13 @@ export async function POST(
     }
 }
 
-export async function DELETE(
-    req: NextRequest,
-    { params: { postId } }: { params: { postId: string } },
-) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ postId: string }> }) {
+    const params = await props.params;
+
+    const {
+        postId
+    } = params;
+
     try {
         const { user: loggedInUser } = await validateRequest();
 
