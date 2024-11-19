@@ -29,7 +29,7 @@ export default function PostEditor() {
         onDrop: startUpload // Call the startUpload function when a file is dropped
     })
 
-    const { onClick, ...rootProps } = getRootProps(); // Destructure the onClick function from the rootProps object
+    const { ...rootProps } = getRootProps(); // Get the root props
 
     // Initialize the editor
     const editor = useEditor({
