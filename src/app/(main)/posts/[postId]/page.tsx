@@ -13,7 +13,7 @@ import { cache, Suspense } from "react";
 
 // PageProps is an interface that defines the props for the Page component.
 interface PageProps {
-    params: { postId: string };
+    params: Promise<{ postId: string }>;
 }
 
 // getPost is a function that gets a post with the given ID and the user who posted it.
@@ -34,9 +34,13 @@ const getPost = cache(async (postId: string, loggedInUserId: string) => {
 });
 
 //  generateMetadata is a function that returns the metadata for the page. Make sure generateMetadata spells correctly
-export async function generateMetadata({
-    params: { postId },
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+    const params = await props.params;
+
+    const {
+        postId
+    } = params;
+
     // Validate the request to ensure the user is authenticated
     const { user } = await validateRequest();
 
@@ -54,7 +58,13 @@ export async function generateMetadata({
 }
 
 // The Page component is the main component for the page.
-export default async function Page({ params: { postId } }: PageProps) {
+export default async function Page(props: PageProps) {
+    const params = await props.params;
+
+    const {
+        postId
+    } = params;
+
     // Validate the request to ensure the user is authenticated
     const { user } = await validateRequest();
 
