@@ -9,6 +9,7 @@ import PostMoreButton from "./PostMoreButton";
 import Linkify from "../ui/Linkify";
 import UserTooltip from "../UserTooltip";
 import Image from "next/image";
+import LikeButton from "./LikeButton";
 
 type UserForPost = {
     id: string;
@@ -64,6 +65,15 @@ export default function Post({ post }: PostProps) {
             {!!post.attachments.length && (
                 <MediaPreviews attachments={post.attachments} />
             )}
+            {/* Horizontal rule */}
+            <hr className="text-muted-foreground" />
+            <LikeButton
+                postId={post.id}
+                initialState={{
+                    likes: post._count.likes,
+                    isLikedByUser: post.likes.some((like) => like.userId === user.id)
+                }}
+            />
         </article>
     )
 }
