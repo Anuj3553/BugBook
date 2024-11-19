@@ -10,6 +10,7 @@ import Linkify from "../ui/Linkify";
 import UserTooltip from "../UserTooltip";
 import Image from "next/image";
 import LikeButton from "./LikeButton";
+import BookmarkButton from "./BookmarkButton";
 
 type UserForPost = {
     id: string;
@@ -23,7 +24,7 @@ type UserForPost = {
 };
 
 interface PostProps {
-    post: PostData & { user: UserForPost } & { attachments: Media[] } & { _count: { likes: number } } & { likes: { userId: string }[] };
+    post: PostData & { user: UserForPost } & { attachments: Media[] } & { _count: { likes: number } } & { likes: { userId: string }[] } & { bookmarks: { userId: string }[] };
 }
 
 export default function Post({ post }: PostProps) {
@@ -67,13 +68,30 @@ export default function Post({ post }: PostProps) {
             )}
             {/* Horizontal rule */}
             <hr className="text-muted-foreground" />
-            <LikeButton
-                postId={post.id}
-                initialState={{
-                    likes: post._count.likes,
-                    isLikedByUser: post.likes.some((like) => like.userId === user.id)
-                }}
-            />
+            <div className="flex justify-between gap-5">
+                <div className="flex items-center gap-5">
+                    <LikeButton
+                        postId={post.id}
+                        initialState={{
+                            likes: post._count.likes,
+                            isLikedByUser: post.likes.some((like) => like.userId === user.id),
+                        }}
+                    />
+                    {/* <CommentButton
+                        post={post}
+                        onClick={() => setShowComments(!showComments)}
+                    /> */}
+                </div>
+                <BookmarkButton
+                    postId={post.id}
+                    initialState={{
+                        isBookmarkedByUser: post.bookmarks.some(
+                            (bookmark) => bookmark.userId === user.id,
+                        ),
+                    }}
+                />
+            </div>
+            {/* {showComments && <Comments post={post} />} */}
         </article>
     )
 }

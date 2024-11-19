@@ -44,6 +44,11 @@ export function getPostDataInclude(loggedinUserId: string) {
                 userId: true,
             },
         },
+        bookmarks: {
+            where: {
+                userId: loggedinUserId, // Only select the bookmark if the user bookmarked the post
+            },
+        },
         _count: {
             select: {
                 likes: true,
@@ -63,14 +68,19 @@ export interface PostsPage {
     nextCursor: string | null; // Pagination cursor for the next page
 }
 
-// Define the user select properties
+// Create the FollowerInfo interface
 export interface FollowerInfo {
     followers: number,
     isFollowedByUser: boolean;
 }
 
-// Define the user select properties
+// Create the LikeInfo interface
 export interface LikeInfo {
     likes: number,
     isLikedByUser: boolean;
+}
+
+// Create the BookmarkInfo interface
+export interface BookmarkInfo {
+    isBookmarkedByUser: boolean;
 }
