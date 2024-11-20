@@ -2,10 +2,12 @@ import TrendsSidebar from "@/components/TrendsSidebar";
 import { Metadata } from "next";
 import Notifications from "./Notifications";
 
+// Notifications Metadata
 export const metadata: Metadata = {
   title: "Notifications",
 };
 
+// Notifications Page
 export default function Page() {
   return (
     <main className="flex w-full min-w-0 gap-5">

@@ -5,10 +5,10 @@ import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
     try {
-        // Get the cursor from the query parameters
+        // Get the cursor from the query string
         const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
 
-        // The number of notifications to fetch
+        // Set the page size
         const pageSize = 10;
 
         // Validate the request to ensure the user is logged in
@@ -19,25 +19,25 @@ export async function GET(req: NextRequest) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Fetch the notifications
+        // Find the notifications for the user
         const notifications = await prisma.notification.findMany({
             where: {
-                recipientId: user.id // Fetch notifications for the current user
+                recipientId: user.id, // Find notifications where the recipient ID is the user's ID
             },
-            include: notificationsInclude, // Include the notification data
-            orderBy: { createdAt: "desc" }, // Order the notifications by creation date
-            take: pageSize + 1, // Fetch one more notification than the page size to determine if there are more notifications
-            cursor: cursor ? { id: cursor } : undefined, // Use the cursor to fetch the next page of notifications
-        })
+            include: notificationsInclude, // Include the issuer and post
+            orderBy: { createdAt: "desc" }, // Order the notifications by createdAt in descending order
+            take: pageSize + 1, // Take the page size + 1 to check if there are more notifications
+            cursor: cursor ? { id: cursor } : undefined, // Set the cursor
+        });
 
-        // Determine the next cursor
+        // Get the next cursor
         const nextCursor = notifications.length > pageSize ? notifications[pageSize].id : null;
 
         // Return the notifications and the next cursor
         const data: NotificationsPage = {
-            notifications: notifications.slice(0, pageSize), // Return only the notifications for the current page
-            nextCursor, // Return the next cursor
-        }
+            notifications: notifications.slice(0, pageSize),
+            nextCursor,
+        };
 
         // Return the data
         return Response.json(data);

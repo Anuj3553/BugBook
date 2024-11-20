@@ -3,8 +3,10 @@ import prisma from "@/lib/prisma"
 import { FollowerInfo } from "@/lib/types"
 
 export async function GET(req: Request, props: { params: Promise<{ userId: string }> }) {
+    // Get the request parameters
     const params = await props.params;
 
+    // Get the user ID from the request parameters
     const {
         userId
     } = params;
@@ -66,40 +68,36 @@ export async function POST(req: Request, props: { params: Promise<{ userId: stri
 
     try {
         // Validate the request to ensure the user is logged in
-        const { user: loggedinUser } = await validateRequest()
+        const { user: loggedInUser } = await validateRequest(); // The logged in user
 
-        // If the user is not logged in, return an error
-        if (!loggedinUser) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+        // If the user is not logged in
+        if (!loggedInUser) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         // Create a new follow record and a new notification record
-        await prisma.$transaction([
-            prisma.follow.upsert({ // upsert is used to create a new record if it doesn't exist
-                where: {
-                    // Find the follow record by the follower ID and the following ID
-                    followerId_followingId: {
-                        followerId: loggedinUser.id,
-                        followingId: userId
-                    }
+        await prisma.$transaction([ // Use a transaction to ensure both queries are executed
+            prisma.follow.upsert({ // Upsert the follow record
+                where: { // Find the follow record by the follower ID and the following ID
+                    followerId_followingId: { // The compound unique key
+                        followerId: loggedInUser.id, // The logged in user ID
+                        followingId: userId, // The user ID
+                    },
                 },
-                // If the follow record is not found, create a new record
                 create: {
-                    followerId: loggedinUser.id,
-                    followingId: userId
+                    followerId: loggedInUser.id, // The logged in user ID
+                    followingId: userId, // The user ID
                 },
-                // If the follow record is found, update the record
-                update: {}
+                update: {}, // No update operation
             }),
-            // Create a new notification record
-            prisma.notification.create({
-                data: {
-                    issuerId: loggedinUser.id, // The user who followed
-                    recipientId: loggedinUser.id, // The user who was followed
-                    type: 'FOLLOW',// The type of the notification
-                }
-            })
-        ])
+            prisma.notification.create({ // Create a new notification record
+                data: { // Set the notification data
+                    issuerId: loggedInUser.id, // The logged in user ID
+                    recipientId: userId, // The user ID
+                    type: "FOLLOW", // The type of the notification
+                },
+            }),
+        ]);
 
         return new Response();
     } catch (error) {
@@ -111,37 +109,38 @@ export async function POST(req: Request, props: { params: Promise<{ userId: stri
 export async function DELETE(req: Request, props: { params: Promise<{ userId: string }> }) {
     const params = await props.params;
 
+    // Get the user ID from the request parameters
     const {
         userId
     } = params;
 
     try {
         // Validate the request to ensure the user is logged in
-        const { user: loggedinUser } = await validateRequest()
+        const { user: loggedInUser } = await validateRequest();
 
-        // If the user is not logged in, return an error
-        if (!loggedinUser) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+        // If the user is not logged in
+        if (!loggedInUser) {
+            return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         // Delete the follow record and the notification record
-        await prisma.$transaction([
-            prisma.follow.deleteMany({
-                where: {
-                    followerId: loggedinUser.id, // The user who followed
-                    followingId: userId // The user who was followed
-                }
+        await prisma.$transaction([ // Use a transaction to ensure both queries are executed
+            prisma.follow.deleteMany({ // Delete the follow record
+                where: { // Find the follow record by the follower ID and the following ID
+                    followerId: loggedInUser.id, // The logged in user ID
+                    followingId: userId, // The user ID
+                },
             }),
-            // Delete the notification record
             prisma.notification.deleteMany({
-                where: {
-                    issuerId: loggedinUser.id, // The user who followed
-                    recipientId: userId, // The user who was followed
-                    type: 'FOLLOW' // The type of the notification
-                }
-            })
-        ])
+                where: { // Find the notification record by the issuer ID and the recipient ID
+                    issuerId: loggedInUser.id, // The logged in user ID
+                    recipientId: userId, // The user ID
+                    type: "FOLLOW", // The type of the notification
+                },
+            }),
+        ]);
 
+        // Return an empty response
         return new Response();
     } catch (error) {
         console.error(error)

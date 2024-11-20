@@ -5,41 +5,45 @@ import { NotificationType } from "@prisma/client";
 import { Heart, MessageCircle, User2 } from "lucide-react";
 import Link from "next/link";
 
-// The notification props
+// Notification interface
 interface NotificationProps {
     notification: NotificationData;
 }
 
-// The notification component
+// Notification component
 export default function Notification({ notification }: NotificationProps) {
-    // Map the notification type to the message, icon, and href
-    const notificationTypeMap: Record<NotificationType, { message: string, icon: JSX.Element, href: string }> = {
-        FOLLOW: { // The follow notification
-            message: `${notification.issuer.displayName} followed you.`,
+    const notificationTypeMap: Record< // Record type
+        NotificationType, // NotificationType enum
+        { message: string; icon: JSX.Element; href: string } // Object type
+    > = {
+        FOLLOW: { // FOLLOW type
+            message: `${notification.issuer.displayName} followed you`,
             icon: <User2 className="size-7 text-primary" />,
-            href: `/users/${notification.postId}`,
+            href: `/users/${notification.issuer.username}`,
         },
-        COMMENT: { // The comment notification
-            message: `${notification.issuer.displayName} commented on your post.`,
-            icon: <MessageCircle className="size-7 text-primary fill-primary" />,
+        COMMENT: { // COMMENT type
+            message: `${notification.issuer.displayName} commented on your post`,
+            icon: <MessageCircle className="size-7 fill-primary text-primary" />,
             href: `/posts/${notification.postId}`,
         },
-        LIKE: { // The like notification
-            message: `${notification.issuer.displayName} liked your post.`,
-            icon: <Heart className="size-7 text-red-500 fill-red-500" />,
+        LIKE: { // LIKE type
+            message: `${notification.issuer.displayName} liked your post`,
+            icon: <Heart className="size-7 fill-red-500 text-red-500" />,
             href: `/posts/${notification.postId}`,
         },
     };
 
-    // Get the message, icon, and href for the notification type
+    // Destructure the message, icon, and href from the notificationTypeMap object
     const { message, icon, href } = notificationTypeMap[notification.type];
 
     return (
         <Link href={href} className="block">
-            <article className={cn( // cn is a utility function to conditionally join class names
-                "flex gap-3 rounded-2xl bg-card p-5 shadow-sm transition-colors hover:bg-card/70",
-                !notification.read && "bg-primary/10"
-            )}>
+            <article
+                className={cn( // cn is a utility function to conditionally join class names
+                    "flex gap-3 rounded-2xl bg-card p-5 shadow-sm transition-colors hover:bg-card/70",
+                    !notification.read && "bg-primary/10", // If the notification is unread, apply the bg-primary/10 class
+                )}
+            >
                 <div className="my-1">{icon}</div>
                 <div className="space-y-3">
                     <UserAvatar avatarUrl={notification.issuer.avatarUrl} size={36} />
@@ -55,5 +59,5 @@ export default function Notification({ notification }: NotificationProps) {
                 </div>
             </article>
         </Link>
-    )
+    );
 }

@@ -139,3 +139,13 @@ export interface LikeInfo {
 export interface BookmarkInfo {
     isBookmarkedByUser: boolean;
 }
+
+// Create the NotificationCountInfo interface
+export interface NotificationCountInfo {
+    unreadCount: number;
+}
+
+// Create the MessageCountInfo interface
+export interface MessageCountInfo {
+    unreadCount: number;
+}
