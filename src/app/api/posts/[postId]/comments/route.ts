@@ -3,10 +3,13 @@ import prisma from "@/lib/prisma";
 import { CommentsPage, getCommentDataInclude } from "@/lib/types";
 import { NextRequest } from "next/server";
 
-export async function GET(
-    req: NextRequest,
-    { params: { postId } }: { params: { postId: string } },
-) {
+export async function GET(req: NextRequest, props: { params: Promise<{ postId: string }> }) {
+    const params = await props.params;
+
+    const {
+        postId
+    } = params;
+
     try {
         // Get the cursor from the query string
         const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
