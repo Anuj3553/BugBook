@@ -39,3 +39,8 @@ export const updateUserProfileSchema = z.object({
 
 // UpdateUserProfileValues is the type of values that updateUserProfileSchema accepts
 export type UpdateUserProfileValues = z.infer<typeof updateUserProfileSchema>;
+
+// CreateCommentValues is the type of values that createCommentSchema accepts
+export const createCommentSchema = z.object({
+  content: requiredString,
+})

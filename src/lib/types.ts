@@ -2,13 +2,15 @@ import { Prisma } from "@prisma/client";
 
 // Define the user select properties
 export function getUserDataSelect(loggedinUserId: string) {
+    // Return the user data select properties
     return {
-        id: true,
-        username: true,
-        displayName: true,
-        avatarUrl: true,
-        bio: true,
-        createdAt: true,
+        id: true, // Select the user ID
+        username: true, // Select the username
+        displayName: true, // Select the display name
+        avatarUrl: true, // Select the avatar URL
+        bio: true, // Select the bio
+        createdAt: true, // Select the created at date
+        // Select the followers if the user is followed by the logged in user
         followers: {
             where: {
                 followerId: loggedinUserId,
@@ -17,6 +19,7 @@ export function getUserDataSelect(loggedinUserId: string) {
                 followerId: true,
             },
         },
+        // Select the count of posts and followers
         _count: {
             select: {
                 posts: true,
@@ -32,10 +35,12 @@ export type UserData = Prisma.UserGetPayload<{
 
 export function getPostDataInclude(loggedinUserId: string) {
     return {
+        // Select the user data using the getUserDataSelect function with the logged in user ID as an argument
         user: {
             select: getUserDataSelect(loggedinUserId),
         },
         attachments: true,
+        // Select the likes if the user liked the post
         likes: {
             where: {
                 userId: loggedinUserId,
@@ -44,14 +49,17 @@ export function getPostDataInclude(loggedinUserId: string) {
                 userId: true,
             },
         },
+        // Select the bookmark if the user bookmarked the post
         bookmarks: {
             where: {
                 userId: loggedinUserId, // Only select the bookmark if the user bookmarked the post
             },
         },
+        // Select the count of likes and comments
         _count: {
             select: {
                 likes: true,
+                comments: true,
             },
         },
     } satisfies Prisma.PostInclude;
@@ -66,6 +74,25 @@ export type PostData = Prisma.PostGetPayload<{
 export interface PostsPage {
     posts: PostData[]; // Array of post data
     nextCursor: string | null; // Pagination cursor for the next page
+}
+
+// Define the comment data select properties
+export function getCommentDataInclude(loggedinUserId: string) {
+    return {
+        user: {
+            select: getUserDataSelect(loggedinUserId), // Select the user data using the getUserDataSelect function with the logged in user ID as an argument
+        },
+    } satisfies Prisma.CommentInclude; // This is required to satisfy the Prisma.CommentInclude type
+}
+
+// Define the CommentData type using Prisma's CommentGetPayload to infer types from the Prisma schema
+export type CommentData = Prisma.CommentGetPayload<{
+    include: ReturnType<typeof getCommentDataInclude>; // Include the user data
+}>;
+
+export interface CommentsPage {
+    comments: CommentData[];
+    previousCursor: string | null;
 }
 
 // Create the FollowerInfo interface

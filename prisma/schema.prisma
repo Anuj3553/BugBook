@@ -29,6 +29,7 @@ model User {
   followers    Follow[]   @relation("Followers") // @relation links the User to the Follow model
   likes        Like[]
   bookmarks    Bookmark[]
+  comments     Comment[]
 
   createdAt DateTime @default(now()) // @default sets a default value for a field
 
@@ -63,6 +64,7 @@ model Post {
   attachments Media[] // @relation links the Post to the Media model
   likes       Like[]
   bookmarks   Bookmark[]
+  comments    Comment[]
 
   createdAt DateTime @default(now())
 
@@ -85,6 +87,19 @@ model Media {
 enum MediaType {
   IMAGE
   VIDEO
+}
+
+model Comment {
+  id      String @id @default(cuid())
+  content String
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade) // @relation links the Comment to the User model
+  postId  String
+  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade) // @relation links the Comment to the Post model
+
+  createdAt DateTime @default(now())
+
+  @@map("comments") // @@map allows you to set the name of the table in the database
 }
 
 model Like {
