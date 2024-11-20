@@ -80,6 +80,7 @@ export default function PostEditor() {
                 <div {...rootProps} className="w-full">
                     <EditorContent
                         editor={editor}
+                        // cn is a utility function to conditionally join class names
                         className={cn("w-full max-h-[20rem] overflow-y-auto bg-background rounded-2xl px-5 py-3",
                             isDragActive && "outline-dashed"
                         )}

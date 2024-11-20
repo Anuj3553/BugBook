@@ -90,9 +90,37 @@ export type CommentData = Prisma.CommentGetPayload<{
     include: ReturnType<typeof getCommentDataInclude>; // Include the user data
 }>;
 
+// Correct the CommentsPage type to directly include comments and previousCursor
 export interface CommentsPage {
     comments: CommentData[];
     previousCursor: string | null;
+}
+
+// Define the notifications include properties
+export const notificationsInclude = {
+    issuer: {
+        select: {
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+        }
+    },
+    post: {
+        select: {
+            content: true,
+        }
+    }
+} satisfies Prisma.NotificationInclude; // This is required to satisfy the Prisma.NotificationInclude type
+
+// Define the NotificationData type using Prisma's NotificationGetPayload to infer types from the Prisma schema
+export type NotificationData = Prisma.NotificationGetPayload<{
+    include: typeof notificationsInclude;
+}>;
+
+// Correct the NotificationsPage type to directly include notifications and nextCursor
+export interface NotificationsPage {
+    notifications: NotificationData[];
+    nextCursor: string | null;
 }
 
 // Create the FollowerInfo interface

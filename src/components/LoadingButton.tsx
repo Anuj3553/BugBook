@@ -15,7 +15,7 @@ export default function LoadingButton({
   return (
     <Button
       disabled={loading || disabled}
-      className={cn("flex items-center gap-2", className)}
+      className={cn("flex items-center gap-2", className)} // cn is a utility function to conditionally join class names
       {...props}
     >
       {loading && <Loader2 className="size-5 animate-spin" />}

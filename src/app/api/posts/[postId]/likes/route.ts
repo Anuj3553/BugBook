@@ -70,19 +70,47 @@ export async function POST(req: NextRequest, props: { params: Promise<{ postId: 
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await prisma.like.upsert({
-            where: {
-                userId_postId: { // Set the composite key for the like which helps to prevent duplicate likes
+        // Find the post by the id
+        const post = await prisma.post.findUnique({
+            where: { id: postId }, // Find the post by the id
+            select: {
+                userId: true // Select the id
+            }
+        })
+
+        // If the post is not found
+        if (!post) {
+            return Response.json({ error: 'Post not found' }, { status: 404 });
+        }
+
+        // Transaction to like the post and create a notification if the user liked someone else's post
+        await prisma.$transaction([
+            prisma.like.upsert({
+                where: {
+                    userId_postId: { // Set the composite key for the like which helps to prevent duplicate likes
+                        userId: loggedInUser.id, // Set the userId
+                        postId // Set the postId
+                    }
+                },
+                create: {
                     userId: loggedInUser.id, // Set the userId
                     postId // Set the postId
-                }
-            },
-            create: {
-                userId: loggedInUser.id, // Set the userId
-                postId // Set the postId
-            },
-            update: {} // No need to update anything
-        })
+                },
+                update: {} // No need to update anything
+            }),
+            // Create a notification if the user liked someone else's post
+            ...(loggedInUser.id !== post.userId ?
+                [prisma.notification.create({
+                    data: {
+                        issuerId: loggedInUser.id, // Set the issuerId
+                        recipientId: post.userId, // Set the recipientId
+                        postId, // Set the postId
+                        type: 'LIKE' // Set the type of the notification
+                    }
+                })]
+                : [] // If the user liked their own post, don't create a notification
+            )
+        ])
 
         return new Response(); // Return an empty response
 
@@ -106,12 +134,37 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ postId
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await prisma.like.deleteMany({
-            where: {
-                userId: loggedInUser.id, // Set the userId
-                postId // Set the postId
-            },
-        });
+        // Find the post by the id
+        const post = await prisma.post.findUnique({
+            where: { id: postId }, // Find the post by the id
+            select: {
+                userId: true // Select the id
+            }
+        })
+
+        // If the post is not found
+        if (!post) {
+            return Response.json({ error: 'Post not found' }, { status: 404 });
+        }
+
+        // Transaction to delete the like
+        await prisma.$transaction([
+            prisma.like.deleteMany({
+                where: {
+                    userId: loggedInUser.id, // Set the userId
+                    postId // Set the postId
+                },
+            }),
+            // Delete the notification if the user unliked someone else's post
+            prisma.notification.deleteMany({
+                where: {
+                    issuerId: loggedInUser.id, // Set the issuerId
+                    recipientId: post.userId, // Set the recipientId
+                    postId, // Set the postId
+                    type: 'LIKE' // Set the type of the notification
+                }
+            })
+        ])
 
         return new Response(); // Return an empty response
 

@@ -12,7 +12,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, React.ComponentProps<"i
             <div className="relative">
                 <Input
                     type={showPassword ? "text" : "password"}
-                    className={cn("pe-10", className)}
+                    className={cn("pe-10", className)} // cn is a utility function to conditionally join class names
                     ref={ref}
                     {...props}
                 />

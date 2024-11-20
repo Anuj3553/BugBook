@@ -73,19 +73,33 @@ export async function POST(req: Request, props: { params: Promise<{ userId: stri
             return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        await prisma.follow.upsert({ // upsert is used to create a new record if it doesn't exist
-            where: {
-                followerId_followingId: {
+        // Create a new follow record and a new notification record
+        await prisma.$transaction([
+            prisma.follow.upsert({ // upsert is used to create a new record if it doesn't exist
+                where: {
+                    // Find the follow record by the follower ID and the following ID
+                    followerId_followingId: {
+                        followerId: loggedinUser.id,
+                        followingId: userId
+                    }
+                },
+                // If the follow record is not found, create a new record
+                create: {
                     followerId: loggedinUser.id,
                     followingId: userId
+                },
+                // If the follow record is found, update the record
+                update: {}
+            }),
+            // Create a new notification record
+            prisma.notification.create({
+                data: {
+                    issuerId: loggedinUser.id, // The user who followed
+                    recipientId: loggedinUser.id, // The user who was followed
+                    type: 'FOLLOW',// The type of the notification
                 }
-            },
-            create: {
-                followerId: loggedinUser.id,
-                followingId: userId
-            },
-            update: {}
-        })
+            })
+        ])
 
         return new Response();
     } catch (error) {
@@ -110,12 +124,23 @@ export async function DELETE(req: Request, props: { params: Promise<{ userId: st
             return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        await prisma.follow.deleteMany({
-            where: {
-                followerId: loggedinUser.id,
-                followingId: userId
-            }
-        })
+        // Delete the follow record and the notification record
+        await prisma.$transaction([
+            prisma.follow.deleteMany({
+                where: {
+                    followerId: loggedinUser.id, // The user who followed
+                    followingId: userId // The user who was followed
+                }
+            }),
+            // Delete the notification record
+            prisma.notification.deleteMany({
+                where: {
+                    issuerId: loggedinUser.id, // The user who followed
+                    recipientId: userId, // The user who was followed
+                    type: 'FOLLOW' // The type of the notification
+                }
+            })
+        ])
 
         return new Response();
     } catch (error) {

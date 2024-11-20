@@ -18,6 +18,7 @@ export default function UserAvatar({
         alt="User avatar"
         width={size ?? 500}
         height={size ?? 500}
+        // cn is a utility function to conditionally join class names
         className={cn("aspect-square w-[48px] h-[48px]  flex-none rounded-full bg-secondary object-cover", className)}
     />
 }

@@ -108,7 +108,7 @@ interface MediaPreviewsProps {
 function MediaPreviews({ attachments }: MediaPreviewsProps) {
     return (
         <div
-            className={cn(
+            className={cn( // cn is a utility function to conditionally join class names
                 "flex flex-col gap-3",
                 attachments.length > 1 && "sm:grid sm:grid-cols-2",
             )}

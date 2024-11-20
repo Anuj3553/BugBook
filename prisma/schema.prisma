@@ -15,21 +15,23 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(cuid()) // @id marks a field as the primary key
-  username     String     @unique
-  displayName  String
-  email        String?    @unique
-  passwordHash String
-  googleId     String?    @unique
-  avatarUrl    String?
-  bio          String?
-  sessions     Session[] // @relation links the User to the Session model
-  posts        Post[] // @relation links the User to the Post model
-  following    Follow[]   @relation("Following") // @relation links the User to the Follow model
-  followers    Follow[]   @relation("Followers") // @relation links the User to the Follow model
-  likes        Like[]
-  bookmarks    Bookmark[]
-  comments     Comment[]
+  id                    String         @id @default(cuid()) // @id marks a field as the primary key
+  username              String         @unique
+  displayName           String
+  email                 String?        @unique
+  passwordHash          String
+  googleId              String?        @unique
+  avatarUrl             String?
+  bio                   String?
+  sessions              Session[] // @relation links the User to the Session model
+  posts                 Post[] // @relation links the User to the Post model
+  following             Follow[]       @relation("Following") // @relation links the User to the Follow model
+  followers             Follow[]       @relation("Followers") // @relation links the User to the Follow model
+  likes                 Like[]
+  bookmarks             Bookmark[]
+  comments              Comment[]
+  receivedNotifications Notification[] @relation("Recipient") // @relation links the User to the Notification model
+  issuedNotifications   Notification[] @relation("Issuer") // @relation links the User to the Notification model
 
   createdAt DateTime @default(now()) // @default sets a default value for a field
 
@@ -57,14 +59,15 @@ model Follow {
 }
 
 model Post {
-  id          String     @id @default(cuid())
-  content     String
-  userId      String
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade) // @relation links the Post to the User model
-  attachments Media[] // @relation links the Post to the Media model
-  likes       Like[]
-  bookmarks   Bookmark[]
-  comments    Comment[]
+  id                  String         @id @default(cuid())
+  content             String
+  userId              String
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade) // @relation links the Post to the User model
+  attachments         Media[] // @relation links the Post to the Media model
+  likes               Like[]
+  bookmarks           Bookmark[]
+  comments            Comment[]
+  linkedNotifications Notification[]
 
   createdAt DateTime @default(now())
 
@@ -123,4 +126,27 @@ model Bookmark {
 
   @@unique([userId, postId]) // @@unique creates a unique constraint on the fields
   @@map("bookmarks") // @@map allows you to set the name of the table in the database
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  recipientId String
+  recipient   User             @relation("Recipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  issuerId    String
+  issuer      User             @relation("Issuer", fields: [issuerId], references: [id], onDelete: Cascade)
+  postId      String?
+  post        Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  read        Boolean          @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("notifications") // @@map allows you to set the name of the table in the database
+}
+
+// enum is used to define a type with a fixed set of values.
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
 }
