@@ -5,20 +5,24 @@ import NotificationsButton from "./NotificationsButton";
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
 
+// MenuBarProps interface
 interface MenuBarProps {
     className?: string;
 }
 
 export default async function MenuBar({ className }: MenuBarProps) {
+    // Validate the request to ensure the user is logged in
     const { user } = await validateRequest();
 
+    // If the user is not logged in, return null
     if (!user) return null;
 
-    const [unreadNotificationsCount] = await Promise.all([
-        prisma.notification.count({
-            where: {
-                recipientId: user.id,
-                read: false,
+    // Get the unread notifications count
+    const [unreadNotificationsCount] = await Promise.all([ // Promise.all to run multiple promises concurrently
+        prisma.notification.count({ // count the notifications
+            where: { 
+                recipientId: user.id, // recipientId is the user ID
+                read: false, // read is false
             },
         }),
     ]);
@@ -39,7 +43,7 @@ export default async function MenuBar({ className }: MenuBarProps) {
             </Button>
             {/* Notification */}
             <NotificationsButton
-                initialState={{ unreadCount: unreadNotificationsCount }}
+                initialState={{ unreadCount: unreadNotificationsCount }} // initialState is the initial state of the notifications
             />
             {/* Messages */}
             <Button

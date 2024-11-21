@@ -41,17 +41,19 @@ export default function Notifications() {
         mutationFn: () => kyInstance.patch("/api/notifications/mark-as-read"), // mutationFn is the function to mark notifications as read
         onSuccess: () => { // onSuccess is the function to run on success
             queryClient.setQueryData(["unread-notification-count"], { // setQueryData to update the unread notification count
-                unreadCount: 0,
+                unreadCount: 0, // set the unreadCount to 0
             });
         },
+        // onError is the function to run on error
         onError(error) {
             console.error("Failed to mark notifications as read", error);
         },
     });
 
-    useEffect(() => { // useEffect to call mutate on mount
-        mutate();
-    }, [mutate]);
+    // useEffect to call mutate on mount
+    useEffect(() => {
+        mutate(); // Call mutate
+    }, [mutate]); // Call mutate on mount
 
     const notifications = data?.pages.flatMap((page) => page.notifications) || []; // notifications is the flatMap of the notifications
 
