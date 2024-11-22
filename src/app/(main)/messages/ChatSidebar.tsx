@@ -87,14 +87,21 @@ interface MenuHeaderProps {
 // Menu header component
 function MenuHeader({ onClose }: MenuHeaderProps) {
     const [showNewChatDialog, setShowNewChatDialog] = useState(false); // show new chat dialog state
+    const { channel } = useChatContext(); // Get the current channel from the chat context
+
+    // Check if the channel has any members
+    const hasMembers = Array.isArray(channel?.state?.members) && channel.state.members.length > 0;
 
     return (
         <>
             <div className="flex items-center gap-3 p-2">
                 <div className="h-full md:hidden">
-                    <Button size="icon" variant="ghost" onClick={onClose}>
-                        <X className="size-5" />
-                    </Button>
+                    {/* Only show the close button if the channel has members */}
+                    {hasMembers && (
+                        <Button size="icon" variant="ghost" onClick={onClose}>
+                            <X className="size-5" />
+                        </Button>
+                    )}
                 </div>
                 <h1 className="me-auto text-xl font-bold md:ms-2">Messages</h1>
                 <Button
