@@ -37,7 +37,7 @@ export default function ChatSidebar({ open, onClose }: ChatSidebarProps) {
 
     // Channel preview component
     const ChannelPreviewCustom = useCallback( // useCallback is used to memoize the ChannelPreviewCustom component
-        (props: ChannelPreviewUIComponentProps) => ( // ChannelPreviewUIComponentProps is the props for the ChannelPreviewCustom component
+        (props: ChannelPreviewUIComponentProps) => ( // ChannelPreviewUIComponentProps is the props which comes from the Stream Chat 
             <ChannelPreviewMessenger // ChannelPreviewMessenger is the default channel preview component
                 {...props} // pass the props to the ChannelPreviewMessenger component
                 onSelect={() => { // when the channel is selected
