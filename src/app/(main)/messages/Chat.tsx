@@ -36,12 +36,12 @@ export default function Chat() {
                     }
                 >
                     <ChatSidebar
-                        open={sidebarOpen} // If the sidebar is open
-                        onClose={() => setSidebarOpen(false)} // Close the sidebar
+                        open={!sidebarOpen} // If the sidebar is open
+                        onClose={() => setSidebarOpen(true)} // Close the sidebar
                     />
                     <ChatChannel
-                        open={!sidebarOpen} // If the sidebar is not open
-                        openSidebar={() => setSidebarOpen(true)} // Open the sidebar
+                        open={sidebarOpen} // If the sidebar is not open
+                        openSidebar={() => setSidebarOpen(false)} // Open the sidebar
                     />
                 </StreamChat>
             </div>
