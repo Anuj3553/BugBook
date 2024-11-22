@@ -4,6 +4,8 @@ import Link from "next/link";
 import NotificationsButton from "./NotificationsButton";
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
+import MessagesButton from "./MessagesButton";
+import streamServerClient from "@/lib/stream";
 
 // MenuBarProps interface
 interface MenuBarProps {
@@ -17,15 +19,17 @@ export default async function MenuBar({ className }: MenuBarProps) {
     // If the user is not logged in, return null
     if (!user) return null;
 
-    // Get the unread notifications count
-    const [unreadNotificationsCount] = await Promise.all([ // Promise.all to run multiple promises concurrently
-        prisma.notification.count({ // count the notifications
-            where: { 
-                recipientId: user.id, // recipientId is the user ID
-                read: false, // read is false
+    // Get the unread notifications count and unread messages count
+    const [unreadNotificationsCount, unreadMessagesCount] = await Promise.all([
+        prisma.notification.count({
+            where: {
+                recipientId: user.id,
+                read: false,
             },
         }),
+        (await streamServerClient.getUnreadCount(user.id)).total_unread_count,
     ]);
+
 
     return (
         <div className={className}>
@@ -46,17 +50,7 @@ export default async function MenuBar({ className }: MenuBarProps) {
                 initialState={{ unreadCount: unreadNotificationsCount }} // initialState is the initial state of the notifications
             />
             {/* Messages */}
-            <Button
-                variant={'ghost'}
-                className="flex items-center justify-start gap-3"
-                title="Messages"
-                asChild
-            >
-                <Link href="/messages">
-                    <Mail />
-                    <span className="hidden lg:inline">Messages</span>
-                </Link>
-            </Button>
+            <MessagesButton initialState={{ unreadCount: unreadMessagesCount }} />
             {/* Bookmarks */}
             <Button
                 variant={'ghost'}
