@@ -17,30 +17,36 @@ interface ChatSidebarProps {
     onClose: () => void;
 }
 
+// Chat sidebar component
 export default function ChatSidebar({ open, onClose }: ChatSidebarProps) {
+    // Get the user from the session
     const { user } = useSession();
 
+    // Get the query client
     const queryClient = useQueryClient();
 
+    // Get the channel from the chat context
     const { channel } = useChatContext();
 
+    // Invalidate the unread messages count query when the channel changes
     useEffect(() => {
-        if (channel?.id) {
-            queryClient.invalidateQueries({ queryKey: ["unread-messages-count"] });
+        if (channel?.id) { // if the channel id exists
+            queryClient.invalidateQueries({ queryKey: ["unread-messages-count"] }); // invalidate the unread messages count query
         }
-    }, [channel?.id, queryClient]);
+    }, [channel?.id, queryClient]); // when the channel id changes
 
-    const ChannelPreviewCustom = useCallback(
-        (props: ChannelPreviewUIComponentProps) => (
-            <ChannelPreviewMessenger
-                {...props}
-                onSelect={() => {
-                    props.setActiveChannel?.(props.channel, props.watchers);
-                    onClose();
+    // Channel preview component
+    const ChannelPreviewCustom = useCallback( // useCallback is used to memoize the ChannelPreviewCustom component
+        (props: ChannelPreviewUIComponentProps) => ( // ChannelPreviewUIComponentProps is the props for the ChannelPreviewCustom component
+            <ChannelPreviewMessenger // ChannelPreviewMessenger is the default channel preview component
+                {...props} // pass the props to the ChannelPreviewMessenger component
+                onSelect={() => { // when the channel is selected
+                    props.setActiveChannel?.(props.channel, props.watchers); // set the active channel
+                    onClose(); // close the sidebar
                 }}
             />
         ),
-        [onClose],
+        [onClose], // when the onClose function changes
     );
 
     return (
@@ -52,33 +58,35 @@ export default function ChatSidebar({ open, onClose }: ChatSidebarProps) {
         >
             <MenuHeader onClose={onClose} />
             <ChannelList
-                filters={{
-                    type: "messaging",
-                    members: { $in: [user.id] },
+                filters={{ // filters for the channel list
+                    type: "messaging", // type is messaging
+                    members: { $in: [user.id] }, // members include the user id
                 }}
-                showChannelSearch
-                options={{ state: true, presence: true, limit: 8 }}
-                sort={{ last_message_at: -1 }}
-                additionalChannelSearchProps={{
-                    searchForChannels: true,
-                    searchQueryParams: {
-                        channelFilters: {
-                            filters: { members: { $in: [user.id] } },
+                showChannelSearch // show the channel search
+                options={{ state: true, presence: true, limit: 8 }} // options for the channel list
+                sort={{ last_message_at: -1 }} // sort the channels by last message at
+                additionalChannelSearchProps={{ // additional channel search props
+                    searchForChannels: true, // search for channels
+                    searchQueryParams: { // search query params
+                        channelFilters: { // channel filters
+                            filters: { members: { $in: [user.id] } }, // members include the user id
                         },
                     },
                 }}
-                Preview={ChannelPreviewCustom}
+                Preview={ChannelPreviewCustom} // custom channel preview component
             />
         </div>
     );
 }
 
+// Menu header component
 interface MenuHeaderProps {
-    onClose: () => void;
+    onClose: () => void; // function to close the menu
 }
 
+// Menu header component
 function MenuHeader({ onClose }: MenuHeaderProps) {
-    const [showNewChatDialog, setShowNewChatDialog] = useState(false);
+    const [showNewChatDialog, setShowNewChatDialog] = useState(false); // show new chat dialog state
 
     return (
         <>
@@ -93,17 +101,17 @@ function MenuHeader({ onClose }: MenuHeaderProps) {
                     size="icon"
                     variant="ghost"
                     title="Start new chat"
-                    onClick={() => setShowNewChatDialog(true)}
+                    onClick={() => setShowNewChatDialog(true)} // show the new chat dialog
                 >
                     <MailPlus className="size-5" />
                 </Button>
             </div>
             {showNewChatDialog && (
                 <NewChatDialog
-                    onOpenChange={setShowNewChatDialog}
-                    onChatCreated={() => {
-                        setShowNewChatDialog(false);
-                        onClose();
+                    onOpenChange={setShowNewChatDialog} // set the show new chat dialog state
+                    onChatCreated={() => { // when the chat is created
+                        setShowNewChatDialog(false); // hide the new chat dialog
+                        onClose(); // close the menu
                     }}
                 />
             )}

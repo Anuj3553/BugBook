@@ -8,13 +8,18 @@ import ChatChannel from "./ChatChannel";
 import ChatSidebar from "./ChatSidebar";
 import useIntializeChatClient from "./useInitializeChatClient";
 
+// Chat component
 export default function Chat() {
+    // Initialize the chat client
     const chatClient = useIntializeChatClient();
 
+    // Get the resolved theme
     const { resolvedTheme } = useTheme();
 
+    // Sidebar state
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // If the chat client is not initialized
     if (!chatClient) {
         return <Loader2 className="mx-auto my-3 animate-spin" />;
     }
@@ -23,20 +28,20 @@ export default function Chat() {
         <main className="relative w-full overflow-hidden rounded-2xl bg-card shadow-sm">
             <div className="absolute bottom-0 top-0 flex w-full">
                 <StreamChat
-                    client={chatClient}
-                    theme={
+                    client={chatClient} // the chat client
+                    theme={ // If the resolved theme is dark, use the dark theme, otherwise use the light theme
                         resolvedTheme === "dark"
                             ? "str-chat__theme-dark"
                             : "str-chat__theme-light"
                     }
                 >
                     <ChatSidebar
-                        open={sidebarOpen}
-                        onClose={() => setSidebarOpen(false)}
+                        open={sidebarOpen} // If the sidebar is open
+                        onClose={() => setSidebarOpen(false)} // Close the sidebar
                     />
                     <ChatChannel
-                        open={!sidebarOpen}
-                        openSidebar={() => setSidebarOpen(true)}
+                        open={!sidebarOpen} // If the sidebar is not open
+                        openSidebar={() => setSidebarOpen(true)} // Open the sidebar
                     />
                 </StreamChat>
             </div>

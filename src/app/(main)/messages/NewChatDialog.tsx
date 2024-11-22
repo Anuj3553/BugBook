@@ -16,66 +16,75 @@ import { UserResponse } from "stream-chat";
 import { DefaultStreamChatGenerics, useChatContext } from "stream-chat-react";
 import { useSession } from "../SessionProvider";
 
+// New chat dialog component props
 interface NewChatDialogProps {
-    onOpenChange: (open: boolean) => void;
-    onChatCreated: () => void;
+    onOpenChange: (open: boolean) => void; // onOpenChange function
+    onChatCreated: () => void; // onChatCreated function
 }
 
+// New chat dialog component
 export default function NewChatDialog({
-    onOpenChange,
-    onChatCreated,
+    onOpenChange, // onOpenChange function
+    onChatCreated, // onChatCreated function
 }: NewChatDialogProps) {
+    // Get the chat context
     const { client, setActiveChannel } = useChatContext();
 
+    // Get the toast function
     const { toast } = useToast();
 
+    // Get the logged in user
     const { user: loggedInUser } = useSession();
 
+    // Search input state
     const [searchInput, setSearchInput] = useState("");
+    // Debounced search input
     const searchInputDebounced = useDebounce(searchInput);
 
+    // Selected users state
     const [selectedUsers, setSelectedUsers] = useState<
-        UserResponse<DefaultStreamChatGenerics>[]
+        UserResponse<DefaultStreamChatGenerics>[] // UserResponse<DefaultStreamChatGenerics> is the user response type
     >([]);
 
-    const { data, isFetching, isError, isSuccess } = useQuery({
-        queryKey: ["stream-users", searchInputDebounced],
-        queryFn: async () =>
-            client.queryUsers(
+    const { data, isFetching, isError, isSuccess } = useQuery({ // useQuery is used to fetch data
+        queryKey: ["stream-users", searchInputDebounced], // the query key
+        queryFn: async () => // the query function
+            client.queryUsers( // query the users
                 {
-                    id: { $ne: loggedInUser.id },
-                    role: { $ne: "admin" },
-                    ...(searchInputDebounced
-                        ? {
-                            $or: [
-                                { name: { $autocomplete: searchInputDebounced } },
-                                { username: { $autocomplete: searchInputDebounced } },
+                    id: { $ne: loggedInUser.id }, // the id is not equal to the logged in user id
+                    role: { $ne: "admin" }, // the role is not equal to admin
+                    ...(searchInputDebounced // if the search input is debounced
+                        ? { // the query
+                            $or: [ // or
+                                { name: { $autocomplete: searchInputDebounced } }, // the name is autocompleted
+                                { username: { $autocomplete: searchInputDebounced } }, // the username is autocompleted
                             ],
                         }
-                        : {}),
+                        : {}), // otherwise, an empty object
                 },
-                { name: 1, username: 1 },
-                { limit: 15 },
+                { name: 1, username: 1 }, // the name and username
+                { limit: 15 }, // the limit
             ),
     });
 
     const mutation = useMutation({
-        mutationFn: async () => {
-            const channel = client.channel("messaging", {
-                members: [loggedInUser.id, ...selectedUsers.map((u) => u.id)],
-                name:
-                    selectedUsers.length > 1
-                        ? loggedInUser.displayName +
-                        ", " +
-                        selectedUsers.map((u) => u.name).join(", ")
-                        : undefined,
+        mutationFn: async () => { // the mutation function
+            const channel = client.channel("messaging", { // create a new messaging channel
+                members: [loggedInUser.id, ...selectedUsers.map((u) => u.id)], // the members
+                name: // the name
+                    selectedUsers.length > 1 // if the selected users length is greater than 1
+                        ? loggedInUser.displayName + // the logged in user display name
+                        ", " + // and
+                        selectedUsers.map((u) => u.name).join(", ") // the selected users names joined by a comma
+                        : undefined, // otherwise, undefined
             });
-            await channel.create();
-            return channel;
+            await channel.create(); // create the channel
+            return channel; // return the channel
         },
+        // onSuccess function
         onSuccess: (channel) => {
-            setActiveChannel(channel);
-            onChatCreated();
+            setActiveChannel(channel); // set the active channel
+            onChatCreated(); // call the onChatCreated function
         },
         onError(error) {
             console.error("Error starting chat", error);
@@ -122,14 +131,14 @@ export default function NewChatDialog({
                         {isSuccess &&
                             data.users.map((user) => (
                                 <UserResult
-                                    key={user.id}
-                                    user={user}
-                                    selected={selectedUsers.some((u) => u.id === user.id)}
-                                    onClick={() => {
-                                        setSelectedUsers((prev) =>
-                                            prev.some((u) => u.id === user.id)
-                                                ? prev.filter((u) => u.id !== user.id)
-                                                : [...prev, user],
+                                    key={user.id} // the key
+                                    user={user} // the user
+                                    selected={selectedUsers.some((u) => u.id === user.id)} // if the user is selected
+                                    onClick={() => { // when the user is clicked
+                                        setSelectedUsers((prev) => // set the selected users
+                                            prev.some((u) => u.id === user.id) // if the user is already selected
+                                                ? prev.filter((u) => u.id !== user.id) // filter the user
+                                                : [...prev, user], // otherwise, add the user
                                         );
                                     }}
                                 />
@@ -161,12 +170,14 @@ export default function NewChatDialog({
     );
 }
 
+// User result component props
 interface UserResultProps {
-    user: UserResponse<DefaultStreamChatGenerics>;
-    selected: boolean;
-    onClick: () => void;
+    user: UserResponse<DefaultStreamChatGenerics>; // the user
+    selected: boolean; // if the user is selected
+    onClick: () => void; // onClick function
 }
 
+// User result component
 function UserResult({ user, selected, onClick }: UserResultProps) {
     return (
         <button
@@ -185,15 +196,17 @@ function UserResult({ user, selected, onClick }: UserResultProps) {
     );
 }
 
+// Selected user tag component props
 interface SelectedUserTagProps {
-    user: UserResponse<DefaultStreamChatGenerics>;
-    onRemove: () => void;
+    user: UserResponse<DefaultStreamChatGenerics>; // the user
+    onRemove: () => void; // onRemove function
 }
 
-function SelectedUserTag({ user, onRemove }: SelectedUserTagProps) {
+// Selected user tag component
+function SelectedUserTag({ user, onRemove }: SelectedUserTagProps) { // the user and onRemove function
     return (
         <button
-            onClick={onRemove}
+            onClick={onRemove} // when the button is clicked 
             className="flex items-center gap-2 rounded-full border p-1 hover:bg-muted/50"
         >
             <UserAvatar avatarUrl={user.image} size={24} />
