@@ -4,18 +4,30 @@ import SearchResults from "./SearchResults";
 
 // Page properties
 interface PageProps {
-    searchParams: { q: string };
+    searchParams: Promise<{ q: string }>;
 }
 
 // Generate the page metadata
-export function generateMetadata({ searchParams: { q } }: PageProps): Metadata {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+    const searchParams = await props.searchParams;
+
+    const {
+        q
+    } = searchParams;
+
     return {
         title: `Search results for "${q}"`, // Set the page title
     };
 }
 
 // Get the search query from the query string
-export default function Page({ searchParams: { q } }: PageProps) {
+export default async function Page(props: PageProps) {
+    const searchParams = await props.searchParams;
+
+    const {
+        q
+    } = searchParams;
+
     return (
         <main className="flex w-full min-w-0 gap-5">
             <div className="w-full min-w-0 space-y-5">

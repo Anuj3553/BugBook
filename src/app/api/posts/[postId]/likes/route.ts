@@ -99,16 +99,14 @@ export async function POST(req: NextRequest, props: { params: Promise<{ postId: 
                 update: {} // No need to update anything
             }),
             // Create a notification if the user liked someone else's post
-            ...(loggedInUser.id !== post.userId ?
-                [prisma.notification.create({
-                    data: {
-                        issuerId: loggedInUser.id, // Set the issuerId
-                        recipientId: post.userId, // Set the recipientId
-                        postId, // Set the postId
-                        type: 'LIKE' // Set the type of the notification
-                    }
-                })]
-                : [] // If the user liked their own post, don't create a notification
+            ...((loggedInUser.id !== post.userId ? [prisma.notification.create({
+                data: {
+                    issuerId: loggedInUser.id, // Set the issuerId
+                    recipientId: post.userId, // Set the recipientId
+                    postId, // Set the postId
+                    type: 'LIKE' // Set the type of the notification
+                }
+            })] : []) // If the user liked their own post, don't create a notification
             )
         ])
 
