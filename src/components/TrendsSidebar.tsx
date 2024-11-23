@@ -117,7 +117,7 @@ async function TrendingTopics() {
 
                 return (
                     // Link to the hashtag page
-                    <Link key={title} href={`/search?q=${title}`} className="block">
+                    <Link key={title} href={`/hashtag/${title}`} className="block">
                         <p
                             className="line-clamp-1 break-all font-semibold hover:underline"
                             title={hashtag}
